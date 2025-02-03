@@ -13,15 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Upgrade Ranger
 
 on:
@@ -82,11 +73,6 @@ jobs:
           EOF
           cat .env
 
-      - name: Run download-archives.sh
-        run: |
-          cd dev-support/ranger-docker
-          ./download-archives.sh none
-      
       - name: Clean up Docker space
         run: docker system prune --all --force --volumes
 
@@ -118,7 +104,7 @@ jobs:
       fail-fast: false
       matrix:
         release: [ranger-2.4, ranger-2.5]
-        db: [postgres, mysql]
+        db: [postgres, mysql, oracle]
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -203,7 +189,7 @@ jobs:
           docker compose -f docker-compose.ranger-base.yml build
           docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-${RANGER_DB_TYPE}.yml build
           docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-${RANGER_DB_TYPE}.yml up -d
-          sleep 60
+          sleep 120
           docker logs ranger
 
       - name: Remove running containers
