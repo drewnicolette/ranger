@@ -24,7 +24,7 @@ env:
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.class=standard -Dmaven.wagon.http.retryHandler.count=3
 
 jobs:
-  install:
+  build:
     strategy:
       fail-fast: false  # Ensures all matrix jobs run to completion
       matrix:
@@ -99,7 +99,7 @@ jobs:
           path: dev-support/ranger-docker/dist/*
   
   upgrade:
-    needs: install
+    needs: build
     strategy:
       fail-fast: false
       matrix:
@@ -189,7 +189,7 @@ jobs:
           docker compose -f docker-compose.ranger-base.yml build
           docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-${RANGER_DB_TYPE}.yml build
           docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-${RANGER_DB_TYPE}.yml up -d
-          sleep 120
+          sleep 180
           docker logs ranger
 
       - name: Remove running containers
