@@ -58,19 +58,7 @@ jobs:
       - name: Update .env
         run: |
           cd dev-support/ranger-docker
-          RELEASE="${{ matrix.release }}"
-          python3 <<EOF
-          branch_to_version = {"ranger-2.4": "2.4.1-SNAPSHOT", "ranger-2.5": "2.5.1-SNAPSHOT", "ranger-2.6": "2.6.0"}
-          with open(r'.env', 'r') as file:
-              data = file.read()
-          release_branch = "$RELEASE"
-          data = data.replace('BUILD_HOST_SRC=true', 'BUILD_HOST_SRC=false')
-          data = data.replace('BRANCH=master', f'BRANCH={release_branch}')
-          ranger_version = branch_to_version[release_branch]
-          data = data.replace('3.0.0-SNAPSHOT', ranger_version)
-          with open(r'.env', 'w') as file:
-              file.write(data)
-          EOF
+          python3 ./../../.github/scripts/dot_env_util.py --release_branch="${{ matrix.release }}" --current_branch=master --maven_build=True
           cat .env
 
       - name: Clean up Docker space
@@ -134,17 +122,7 @@ jobs:
       - name: Update .env
         run: |
           cd dev-support/ranger-docker
-          RELEASE="${{ matrix.release }}"
-          python3 <<EOF
-          branch_to_version = {"ranger-2.4": "2.4.1-SNAPSHOT", "ranger-2.5": "2.5.1-SNAPSHOT", "ranger-2.6": "2.6.0"}
-          with open(r'.env', 'r') as file:
-              data = file.read()
-          release_branch = "$RELEASE"
-          ranger_version = branch_to_version[release_branch]
-          data = data.replace('3.0.0-SNAPSHOT', ranger_version)
-          with open(r'.env', 'w') as file:
-              file.write(data)
-          EOF
+          python3 ./../../.github/scripts/dot_env_util.py --release_branch="${{ matrix.release }}" --current_branch=master
           cat .env
       
       - name: Run download-archives.sh
@@ -167,17 +145,7 @@ jobs:
       - name: Update .env for upgrade
         run: |
           cd dev-support/ranger-docker
-          RELEASE="${{ matrix.release }}"
-          python3 <<EOF
-          branch_to_version = {"ranger-2.4": "2.4.1-SNAPSHOT", "ranger-2.5": "2.5.1-SNAPSHOT", "ranger-2.6": "2.6.0"}
-          with open(r'.env', 'r') as file:
-              data = file.read()
-          release_branch = "$RELEASE"
-          ranger_version = branch_to_version[release_branch]
-          data = data.replace(ranger_version, branch_to_version["ranger-2.6"])
-          with open(r'.env', 'w') as file:
-              file.write(data)
-          EOF
+          python3 ./../../.github/scripts/dot_env_util.py --release_branch=ranger-2.6 --current_branch=master
           cat .env
 
       - name: Upgrading to ranger-2.6 in docker
