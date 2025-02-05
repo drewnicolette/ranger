@@ -147,7 +147,7 @@ jobs:
       - name: Update .env for upgrade
         run: |
           cd dev-support/ranger-docker
-          python3 ./../../.github/scripts/dot_env_util.py --release_branch=${{ github.event.inputs.release_branch }} --current_branch=master
+          python3 ./../../.github/scripts/dot_env_util.py --release_branch=${{ github.event.inputs.release_branch }} --current_branch="${{ matrix.release }}"
           cat .env
 
       - name: Upgrading to ${{ github.event.inputs.release_branch }} in docker
