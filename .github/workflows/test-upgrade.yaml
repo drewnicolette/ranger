@@ -16,9 +16,11 @@
 name: Upgrade Ranger
 
 on:
-  push:
-  pull_request:
-    branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      release_branch:
+        description: 'release branch to be used for upgrade'
+        required: true
 
 env:
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.class=standard -Dmaven.wagon.http.retryHandler.count=3
@@ -28,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false  # Ensures all matrix jobs run to completion
       matrix:
-        release: [ranger-2.4, ranger-2.5, ranger-2.6] # builds all these release versions
+        release: [ranger-2.4, ranger-2.5, "${{ github.event.inputs.release_branch }}"] # builds all these release versions
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -111,7 +113,7 @@ jobs:
       - name: Download release artifacts for upgrade
         uses: actions/download-artifact@v4
         with:
-          name: ranger-2.6-build-artifacts
+          name: ${{ github.event.inputs.release_branch }}-build-artifacts
 
       - name: Copy artifacts for docker build
         run: |
@@ -145,10 +147,10 @@ jobs:
       - name: Update .env for upgrade
         run: |
           cd dev-support/ranger-docker
-          python3 ./../../.github/scripts/dot_env_util.py --release_branch=ranger-2.6 --current_branch=master
+          python3 ./../../.github/scripts/dot_env_util.py --release_branch=${{ github.event.inputs.release_branch }} --current_branch=master
           cat .env
 
-      - name: Upgrading to ranger-2.6 in docker
+      - name: Upgrading to ${{ github.event.inputs.release_branch }} in docker
         run: |
           cd dev-support/ranger-docker
           export DOCKER_BUILDKIT=1
